@@ -2,70 +2,101 @@
 const buts =document.querySelectorAll('button')
 const textSpace= document.querySelector('.textArea')
 let text =textSpace?.textContent ?? ''
-console.log(buts)
+let startOfSecondNumber
 
-const results = {
+interface Result {
+    firstNum:number,
+    secondNum:number,
+    result:number,
+    operant:('add'|'subst'|'mult'|'divi'|'')
+}
+
+const results:Result = {
     firstNum:0,
     secondNum:0,
     result:0,
-    operant:'' as ('add'|'subst'|'mult'|'divi'|'')
+    operant:'' 
 }
 
 buts.forEach((item)=>{
  item.onclick =(e)=>{
     let textValue=e.target as HTMLButtonElement
-    let startOfSecondNumber
     const value = (<HTMLButtonElement>textValue).textContent as string
-    console.log(value)
+   
     if(textValue.value){
         textSpace?.append( value)
-        console.log(textSpace?.textContent ?? '')
         if(results.operant===''){
-            results.firstNum = parseInt(textSpace?.textContent ?? '')
-            console.log(results)
+            results.firstNum = parseFloat(textSpace?.textContent ?? '')
         }
         else{
-            
-            results.secondNum=parseInt(text)
+           const nextNum:string = textSpace?.textContent?.replace(/\s/g, '').substring(startOfSecondNumber!+1) as string
+            results.secondNum= parseFloat(nextNum)
         }
     }
 
     if(textValue.id =='add' ||textValue.id =='subst'||textValue.id =='mult'||textValue.id =='divi'){
-        results.firstNum=parseInt(text)
-        textSpace?.append( value)
-        results.operant=textValue.id
-        // console.log((textSpace?.textContent?))
+        if(results.operant!==''){
+            if(textSpace?.textContent==null||textSpace?.textContent==undefined){
+            }else{
+                if(results.firstNum!==0 && results.secondNum!==0){
+                    finalResult()
+                    results.operant=textValue.id
+                    textSpace?.append( value)
+
+                }else{
+                    results.operant=textValue.id
+                    let text1= textSpace.textContent
+                    textSpace.textContent =text1.slice(0,(textSpace.textContent.length)-1)
+                    textSpace?.append( value)
+                }
+            }
+
+        }else{
+            textSpace?.append( value)
+            results.operant=textValue.id
+            startOfSecondNumber = textSpace?.textContent?.replace(/\s/g, '').indexOf((value))
+        }
         
     }
-    if(textValue.id=='clear'){
-        console.log(text?.slice(0,text.length-1))
-        textSpace!.textContent = text?.slice(0,text.length-1)??''
-    
+    if(textValue.id==='clear'){
+        // console.log(textSpace?.textContent)
+        clear()
+        
     }
     if(textValue.id==='clearAll'){
-        textSpace!.textContent= ""
-        
+        clearEveryThing()
     }
     if(textValue.id==='result'){
-        startOfSecondNumber = textSpace?.textContent?.replace(/\s/g, '').indexOf('x')
-        console.log(startOfSecondNumber)
-        let secondNum=textSpace?.textContent
-        results.secondNum=tes
-
+        finalResult()
     }
-    // console.log((e.target as HTMLButtonElement).textContent)
-    
+  
  }})
 
-const calcuation = (num1:number,operant:string,num2:number)=>{
+const calcuation =  ({firstNum ,operant,secondNum}:Result)=>{
     if( operant==='add' ){
-        num1 + num2
-    }else if( operant === 'substract' ){
-        num1-num2
-    }else if ( operant === 'times' ){
-        num1*num2
-    }else if( operant === 'divde' ){
-        num1/num2
+        return firstNum + secondNum
+    }else if( operant === 'subst' ){
+        return firstNum - secondNum
+    }else if ( operant === 'mult' ){
+        return firstNum * secondNum
+    }else if( operant === 'divi' ){
+        if(firstNum / secondNum===Infinity){
+            const infint=setTimeout(() => {
+                textSpace!.textContent="infinity"
+               
+             }, 1000);
+            clearTimeout(infint)
+            console.log(infint)
+            return 
+        }else{
+
+        return firstNum / secondNum
+        }
+    }else if((operant==''&& firstNum!==0)){
+        return firstNum
+    }
+    else{
+        return
     }
 }
 
@@ -73,4 +104,37 @@ const name1='Hadaro Adams'
 
 let num1 = name1.indexOf('a')
 
-console.log(num1)
+
+const clearEveryThing=()=>{
+    textSpace!.textContent= ""
+    results.firstNum=0
+    results.secondNum=0
+    results.operant=''
+}
+
+const finalResult=()=>{
+    const finalAnswer= calcuation(results)
+        textSpace!.textContent = finalAnswer?.toString() || ''
+        results.firstNum =finalAnswer as number
+        results.secondNum=0
+        results.operant=''
+}
+
+const clear= () =>{
+    text = textSpace!.textContent?.replace(/\s/g, '') as string
+    console.log(text.slice(0,(text.length-1)))
+    textSpace!.textContent = text?.slice(0,text.length-1)
+    const operant=['+','-','x','/']
+    operant.forEach((item)=>{
+        if(item===text.slice(text.length-1)){
+            results.operant=''
+            console.log('yes')
+        }
+    })
+    if(results.operant!==""){
+        const nextNum:string = textSpace?.textContent?.replace(/\s/g, '').substring(startOfSecondNumber!+1) as string
+        results.secondNum= parseInt(nextNum)
+    }else{
+        results.firstNum = parseInt(textSpace?.textContent ?? '')
+    }
+}
